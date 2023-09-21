@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
@@ -64,8 +63,23 @@ public class UserController {
         //!!! Yöntem 2 - Yukaridaki kodun daha temiz hali
         var validationErrors = exception.getBindingResult().getFieldErrors()
                 .stream()
-                .collect(Collectors.toMap(FieldError::getField,FieldError::getDefaultMessage));
+                .collect(Collectors.toMap(FieldError::getField,
+                        FieldError::getDefaultMessage,
+                        (existing,replacing)->existing)); //3.paramtre ile birden fazla validasyonda gecemezse, sadece bir tane validasyon mesaji göstersin
         apiError.setValidationErrors(validationErrors);
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler(NotUniqueEmailException.class)
+    ResponseEntity<ApiError> handleMethodArgNotValidEx(NotUniqueEmailException exception) {
+        ApiError apiError = new ApiError();
+        apiError.setPath("/api/v1/users");
+        apiError.setMessage(ErrorMessages.VALIDATION_ERROR);
+        apiError.setStatus(400);
+       Map<String,String> validationErrors = new HashMap<>();
+       validationErrors.put("E-mail","This E-mail already exist");
+       //validationErrors.put("Username","This Username already exist");
+       apiError.setValidationErrors(validationErrors);
         return ResponseEntity.badRequest().body(apiError);
     }
 }

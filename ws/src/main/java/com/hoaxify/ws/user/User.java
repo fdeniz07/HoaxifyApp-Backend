@@ -1,12 +1,13 @@
 package com.hoaxify.ws.user;
 
 
+import com.hoaxify.ws.user.validation.UniqueEmail;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {"email"})) //bu annotation ayni alanlara ait birden fazla kayit olamayacagini belirtiyor
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,8 +18,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(unique = true)
-    @NotBlank
+    @NotBlank(message = "Please enter your username")
     @NotNull(message = "Username must not be empty")
     @Size(min = 4, max = 255, message = "Size must be between 4 and 255")
     private String username;
@@ -26,11 +26,11 @@ public class User {
     @Column(unique = true)
     @NotBlank(message = "E-mail must not be empty")
     @Email(message = "Please enter valid email")
-    @Size(min = 5, max = 20, message = "Your email should be at least 5 chars")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$")
+    @UniqueEmail
     private String email;
 
-    @NotBlank
-    @NotNull(message = "Please enter your password")
+    @NotBlank(message = "Please enter your password" )
+    @NotNull(message = "Password must not be empty")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",message = "Your password must consist of the characters a-z, A-Z, 0-9.")
     private String password;
 }

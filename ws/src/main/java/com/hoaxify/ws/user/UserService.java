@@ -1,11 +1,7 @@
 package com.hoaxify.ws.user;
 
-import com.hoaxify.ws.shared.GenericMessage;
-import com.hoaxify.ws.shared.ResponseMessage;
-import com.hoaxify.ws.shared.utils.ErrorMessages;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,9 +15,12 @@ public class UserService {
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public void save(User user) {
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+        try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new NotUniqueEmailException();
+        }
 //        if (user.getUsername() == null || user.getUsername().isEmpty()) {
 //            return ResponseMessage.builder()
 //                    .message(ErrorMessages.USERNAME_IS_INVALID)
