@@ -3,6 +3,9 @@ package com.hoaxify.ws.user;
 import com.hoaxify.ws.shared.GenericMessage;
 import com.hoaxify.ws.shared.error.ApiError;
 import com.hoaxify.ws.shared.utils.Messages;
+import com.hoaxify.ws.user.dto.UserCreate;
+import com.hoaxify.ws.user.exception.ActivationNotificationException;
+import com.hoaxify.ws.user.exception.NotUniqueEmailException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -29,7 +32,7 @@ public class UserController {
 //    private final MessageSource messageSource;
 
     @PostMapping("api/v1/users")
-    GenericMessage createUser(@Valid @RequestBody User user) {
+    GenericMessage createUser(@Valid @RequestBody UserCreate user) {
 //    ResponseEntity<?> createUser(@Valid @RequestBody User user) {
 //        ApiError apiError = new ApiError();
 //        apiError.setPath("/api/v1/users");
@@ -49,7 +52,7 @@ public class UserController {
 //            return ResponseEntity.badRequest().body(apiError);
 //        }
         //System.err.println(user);
-        userService.save(user);
+        userService.save(user.toUser());
        // String message = messageSource.getMessage("hoaxify.create.user.success.message",null, LocaleContextHolder.getLocale());
         String message = Messages.getMessageForLocale("hoaxify.create.user.success.message",  LocaleContextHolder.getLocale());
         return new GenericMessage(message);
@@ -88,9 +91,18 @@ public class UserController {
         apiError.setPath("/api/v1/users");
         apiError.setMessage(exception.getMessage());
         apiError.setStatus(400);
-        Map<String, String> validationErrors = new HashMap<>();
+        //Map<String, String> validationErrors = new HashMap<>();
         //validationErrors.put("Username","This Username already exist");
         apiError.setValidationErrors(exception.getValidationErrors());
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler(ActivationNotificationException.class)
+    ResponseEntity<ApiError> handleActivationNotificationException (ActivationNotificationException exception) {
+        ApiError apiError = new ApiError();
+        apiError.setPath("/api/v1/users");
+        apiError.setMessage(exception.getMessage());
+        apiError.setStatus(502);
         return ResponseEntity.badRequest().body(apiError);
     }
 }

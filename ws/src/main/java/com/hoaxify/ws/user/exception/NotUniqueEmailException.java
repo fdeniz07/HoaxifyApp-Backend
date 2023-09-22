@@ -1,9 +1,8 @@
-package com.hoaxify.ws.user;
+package com.hoaxify.ws.user.exception;
 
 import com.hoaxify.ws.shared.utils.Messages;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
