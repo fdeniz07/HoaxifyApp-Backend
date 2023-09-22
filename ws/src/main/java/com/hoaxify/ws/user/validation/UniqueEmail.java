@@ -17,7 +17,7 @@ public @interface UniqueEmail { //@interface ile annatotion tanimlayabiliyoruz
 
     //Buradaki 3 field default olarak yaziliyor
 
-    String message() default "This E-mail already exist";
+    String message() default "{hoaxify.constraint.email.notunique}";
 
     Class<?>[] groups() default {};
 

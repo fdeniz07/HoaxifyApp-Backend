@@ -18,7 +18,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @NotBlank(message = "Please enter your username")
+    @NotBlank(message = "{hoaxify.constraint.username.notblank}") //"Please enter your username"
     @NotNull(message = "Username must not be empty")
     @Size(min = 4, max = 255, message = "Size must be between 4 and 255")
     private String username;
@@ -31,6 +31,6 @@ public class User {
 
     @NotBlank(message = "Please enter your password" )
     @NotNull(message = "Password must not be empty")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",message = "Your password must consist of the characters a-z, A-Z, 0-9.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",message = "{hoaxify.constraint.password.pattern}") //"Your password must consist of the characters a-z, A-Z, 0-9."
     private String password;
 }
