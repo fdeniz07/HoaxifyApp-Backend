@@ -5,17 +5,16 @@ import com.hoaxify.ws.shared.error.ApiError;
 import com.hoaxify.ws.shared.utils.Messages;
 import com.hoaxify.ws.user.dto.UserCreate;
 import com.hoaxify.ws.user.exception.ActivationNotificationException;
+import com.hoaxify.ws.user.exception.InvalidTokenException;
 import com.hoaxify.ws.user.exception.NotUniqueEmailException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,20 +52,27 @@ public class UserController {
 //        }
         //System.err.println(user);
         userService.save(user.toUser());
-       // String message = messageSource.getMessage("hoaxify.create.user.success.message",null, LocaleContextHolder.getLocale());
-        String message = Messages.getMessageForLocale("hoaxify.create.user.success.message",  LocaleContextHolder.getLocale());
+        // String message = messageSource.getMessage("hoaxify.create.user.success.message",null, LocaleContextHolder.getLocale());
+        String message = Messages.getMessageForLocale("hoaxify.create.user.success.message", LocaleContextHolder.getLocale());
         return new GenericMessage(message);
 //        return ResponseEntity.ok(new GenericMessage("User is created"));
-
     }
+
+    @PatchMapping("/api/v1/users/{token}/active")
+    GenericMessage activateUser(@PathVariable String token) {
+        userService.activateUser(token);
+        String message = Messages.getMessageForLocale("hoaxify.activate.user.success.message", LocaleContextHolder.getLocale());
+        return new GenericMessage(message);
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
 //    @ResponseStatus(HttpStatus.BAD_REQUEST) //Eger geri dönüs kodunu springe birakmak istersek bu annatotionu kullaniyoruz
     ResponseEntity<ApiError> handleMethodArgNotValidEx(MethodArgumentNotValidException exception) {
         ApiError apiError = new ApiError();
         apiError.setPath("/api/v1/users");
-       // String message = messageSource.getMessage("hoaxify.error.validation",null, LocaleContextHolder.getLocale());
-        String message =  Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
+        // String message = messageSource.getMessage("hoaxify.error.validation",null, LocaleContextHolder.getLocale());
+        String message = Messages.getMessageForLocale("hoaxify.error.validation", LocaleContextHolder.getLocale());
         apiError.setMessage(message);
         //apiError.setMessage(ErrorMessages.VALIDATION_ERROR);
         apiError.setStatus(400);
@@ -94,15 +100,24 @@ public class UserController {
         //Map<String, String> validationErrors = new HashMap<>();
         //validationErrors.put("Username","This Username already exist");
         apiError.setValidationErrors(exception.getValidationErrors());
-        return ResponseEntity.badRequest().body(apiError);
+        return ResponseEntity.status(400).body(apiError);
     }
 
     @ExceptionHandler(ActivationNotificationException.class)
-    ResponseEntity<ApiError> handleActivationNotificationException (ActivationNotificationException exception) {
+    ResponseEntity<ApiError> handleActivationNotificationException(ActivationNotificationException exception) {
         ApiError apiError = new ApiError();
         apiError.setPath("/api/v1/users");
         apiError.setMessage(exception.getMessage());
         apiError.setStatus(502);
-        return ResponseEntity.badRequest().body(apiError);
+        return ResponseEntity.status(502).body(apiError);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    ResponseEntity<ApiError> handleInvalidTokenException(InvalidTokenException exception) {
+        ApiError apiError = new ApiError();
+        apiError.setPath("/api/v1/users");
+        apiError.setMessage(exception.getMessage());
+        apiError.setStatus(400);
+        return ResponseEntity.status(400).body(apiError);
     }
 }
