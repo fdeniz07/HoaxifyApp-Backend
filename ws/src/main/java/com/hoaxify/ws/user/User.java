@@ -1,5 +1,6 @@
 package com.hoaxify.ws.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -24,10 +25,16 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",message = "{hoaxify.constraint.password.pattern}") //"Your password must consist of the characters a-z, A-Z, 0-9."
     private String password;
 
+    @JsonIgnore
     boolean active = false;
 
+    @JsonIgnore
     String activationToken;
+
+    @Lob
+    String image;
 }

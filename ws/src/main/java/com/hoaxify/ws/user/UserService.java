@@ -7,11 +7,15 @@ import com.hoaxify.ws.user.exception.NotUniqueEmailException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -60,5 +64,13 @@ public class UserService {
         inDB.setActive(true);
         inDB.setActivationToken(null);
         userRepository.save(inDB);
+    }
+
+    public Page<User> getUsers(Pageable page) {
+        return userRepository.findAll(page);
+    }
+
+    public User findByEmail(String email) {
+      return userRepository.findByEmail(email);
     }
 }
