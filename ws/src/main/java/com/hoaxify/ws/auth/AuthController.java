@@ -4,6 +4,7 @@ import com.hoaxify.ws.auth.dto.AuthResponse;
 import com.hoaxify.ws.auth.dto.Credentials;
 import com.hoaxify.ws.auth.exception.AuthenticationException;
 import com.hoaxify.ws.shared.error.ApiError;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +19,7 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/api/v1/auth")
-    AuthResponse handleAuthentication(@RequestBody Credentials creds) {
+    AuthResponse handleAuthentication(@Valid @RequestBody Credentials creds) {
         return authService.authenticate(creds);
     }
 
